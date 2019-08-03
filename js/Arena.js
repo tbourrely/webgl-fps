@@ -1,57 +1,87 @@
 Arena = function(game) {
-  // Appel des variables nécéssaires
-  this.game = game;
-  var scene = game.scene;
+	// Appel des variables nécéssaires
+	this.game = game;
+	var scene = game.scene;
 
-  var materialGround = new BABYLON.StandardMaterial("groundTexture", scene);
-  materialGround.diffuseTexture = new BABYLON.Texture(
-    "assets/images/brick.jpg",
-    scene
-  );
-  materialGround.diffuseTexture.uScale = 4.0;
-  materialGround.diffuseTexture.vScale = 4.0;
+	// Création de notre lumière principale
+	var light = new BABYLON.HemisphericLight(
+		"light1",
+		new BABYLON.Vector3(0, 10, 0),
+		scene
+	);
+	var light2 = new BABYLON.HemisphericLight(
+		"light2",
+		new BABYLON.Vector3(0, -1, 0),
+		scene
+	);
+	light2.intensity = 0.8;
 
-  // Material pour les objets
-  var materialWall = new BABYLON.StandardMaterial("groundTexture", scene);
-  materialWall.diffuseTexture = new BABYLON.Texture(
-    "assets/images/wood.jpg",
-    scene
-  );
+	// Material pour le sol
+	var materialGround = new BABYLON.StandardMaterial("wallTexture", scene);
+	materialGround.diffuseTexture = new BABYLON.Texture(
+		"assets/images/tile.jpg",
+		scene
+	);
+	materialGround.diffuseTexture.uScale = 8.0;
+	materialGround.diffuseTexture.vScale = 8.0;
 
-  // Création de notre lumière principale
-  var light = new BABYLON.HemisphericLight(
-    "light1",
-    new BABYLON.Vector3(0, 1, 0),
-    scene
-  );
+	// Material pour les objets
+	var materialWall = new BABYLON.StandardMaterial("groundTexture", scene);
+	materialWall.diffuseTexture = new BABYLON.Texture(
+		"assets/images/tile.jpg",
+		scene
+	);
 
-  // Ajoutons un sol de 20 par 20
-  var ground = BABYLON.Mesh.CreateGround("ground1", 20, 20, 2, scene);
-  ground.scaling = new BABYLON.Vector3(2, 2, 3);
-  ground.material = materialGround;
+	var boxArena = BABYLON.Mesh.CreateBox(
+		"box1",
+		100,
+		scene,
+		false,
+		BABYLON.Mesh.BACKSIDE
+	);
+	boxArena.material = materialGround;
+	boxArena.position.y = 50 * 0.3;
+	boxArena.scaling.y = 0.3;
+	boxArena.scaling.z = 0.8;
+	boxArena.scaling.x = 3.5;
+	boxArena.checkCollisions = true;
 
-  // Notre premier cube qui va servir de modèle
-  var mainBox = BABYLON.Mesh.CreateBox("box1", 3, scene);
-  mainBox.scaling.y = 1;
-  mainBox.position = new BABYLON.Vector3(5, (3 / 2) * mainBox.scaling.y, 5);
-  mainBox.rotation.y = (Math.PI * 45) / 180;
-  mainBox.material = materialWall;
+	var columns = [];
+	var numberColumn = 6;
+	var sizeArena = 100 * boxArena.scaling.x - 50;
+	var ratio = (100 / numberColumn / 100) * sizeArena;
+	for (var i = 0; i <= 1; i++) {
+		if (numberColumn > 0) {
+			columns[i] = [];
+			let mainCylinder = BABYLON.Mesh.CreateCylinder(
+				"cyl0-" + i,
+				30,
+				5,
+				5,
+				20,
+				4,
+				scene
+			);
+			mainCylinder.position = new BABYLON.Vector3(
+				-sizeArena / 2,
+				30 / 2,
+				-20 + 40 * i
+			);
+			mainCylinder.material = materialWall;
+			mainCylinder.checkCollisions = true;
+			columns[i].push(mainCylinder);
 
-  // Les trois clones
-  var mainBox2 = mainBox.clone("box2");
-  mainBox2.scaling.y = 2;
-  mainBox2.position = new BABYLON.Vector3(5, (3 / 2) * mainBox2.scaling.y, -5);
-
-  var mainBox3 = mainBox.clone("box3");
-  mainBox3.scaling.y = 3;
-  mainBox3.position = new BABYLON.Vector3(-5, (3 / 2) * mainBox3.scaling.y, -5);
-
-  var mainBox4 = mainBox.clone("box4");
-  mainBox4.scaling.y = 4;
-  mainBox4.position = new BABYLON.Vector3(-5, (3 / 2) * mainBox4.scaling.y, 5);
-
-  // Cylindre -> 20 de hauteur, 5 de diamètre en haut et en bas, 20 de tesselation et 4 de subdivision
-  var cylinder = BABYLON.Mesh.CreateCylinder("cyl1", 20, 5, 5, 20, 4, scene);
-  cylinder.position.y = 20 / 2;
-  cylinder.material = materialWall;
+			if (numberColumn > 1) {
+				for (let y = 1; y <= numberColumn - 1; y++) {
+					let newCylinder = columns[i][0].clone("cyl" + y + "-" + i);
+					newCylinder.position = new BABYLON.Vector3(
+						-(sizeArena / 2) + ratio * y,
+						30 / 2,
+						columns[i][0].position.z
+					);
+					columns[i].push(newCylinder);
+				}
+			}
+		}
+	}
 };
