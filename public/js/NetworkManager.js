@@ -26,7 +26,7 @@ socket.on("newPlayer", function(dataNewPlayer) {
 			}
 		}
 	}
-	// game.displayScore(score);
+	game.displayScore(score);
 
 	// // Vérifie les joueurs qui se connectent
 	checkIfNewGhost(room);

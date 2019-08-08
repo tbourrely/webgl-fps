@@ -1,6 +1,9 @@
 Player = function(game, canvas) {
 	var _this = this;
 
+	this.textHealth = document.getElementById("textHealth");
+	this.textArmor = document.getElementById("textArmor");
+
 	this.weaponShoot = false;
 
 	this.ghostPlayers = [];
@@ -141,6 +144,10 @@ Player.prototype = {
 		this.camera.weapons = new Weapons(this);
 		this.camera.health = 100;
 		this.camera.armor = 0;
+
+		// Affichage vie & armure
+		this.textHealth.innerText = this.camera.health;
+		this.textArmor.innerText = this.camera.armor;
 
 		// Si le joueur est en vie ou non
 		this.isAlive = true;
@@ -344,7 +351,17 @@ Player.prototype = {
 		// Prise des dégâts avec le tampon de l'armure
 		if (this.camera.health > damageTaken) {
 			this.camera.health -= damageTaken;
+
+			if (this.camera.isMain) {
+				this.textHealth.innerText = this.camera.health;
+				this.textArmor.innerText = this.camera.armor;
+			}
 		} else {
+			if (this.camera.isMain) {
+				this.textHealth.innerText = 0;
+				this.textArmor.innerText = 0;
+			}
+
 			// Envoi de la mort par le joueur
 			this.playerDead(whoDamage);
 		}
